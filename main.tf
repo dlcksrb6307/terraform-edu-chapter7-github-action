@@ -1,6 +1,6 @@
 terraform {
   cloud {
-    organization = "<MY-ORG>"
+    organization = "tomandjerry-changyu"
     hostname     = "app.terraform.io" # default
 
     workspaces {
@@ -16,6 +16,7 @@ terraform {
 }
 
 provider "aws" {
+  # profile = "default"
   region = var.region
   default_tags {
     tags = {
@@ -31,7 +32,7 @@ resource "aws_vpc" "hashicat" {
 
   tags = {
     name        = "${var.prefix}-vpc-${var.region}"
-    environment = "Production"
+    environment = var.environment
   }
 }
 
@@ -49,19 +50,19 @@ resource "aws_security_group" "hashicat" {
 
   vpc_id = aws_vpc.hashicat.id
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  # ingress {
+  #   from_port   = 22
+  #   to_port     = 22
+  #   protocol    = "tcp"
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
 
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  # ingress {
+  #   from_port   = 80
+  #   to_port     = 80
+  #   protocol    = "tcp"
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
 
   ingress {
     from_port   = 443
@@ -137,6 +138,7 @@ resource "aws_instance" "hashicat" {
   associate_public_ip_address = true
   subnet_id                   = aws_subnet.hashicat.id
   vpc_security_group_ids      = [aws_security_group.hashicat.id]
+  monitoring                  = true
 
   tags = {
     Name = "${var.prefix}-hashicat-instance"
